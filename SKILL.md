@@ -1,6 +1,7 @@
 ---
 name: hltv-cs2-deep-analysis
 description: Download and analyze detailed HLTV CS2 match-map data for any team or player, then generate both Markdown and native HTML reports in Chinese. Use when users ask for deep diagnosis (weak maps, strong maps, opponent-map matchup issues) and transparent missing-data handling.
+metadata: {"openclaw":{"requires":{"bins":["python3","node","npm"],"env":[]}}}
 ---
 
 # HLTV CS2 Deep Analysis

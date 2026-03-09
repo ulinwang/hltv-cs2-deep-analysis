@@ -3,11 +3,25 @@
 [![Python 3.10+](https://img.shields.io/badge/python-3.10+-blue.svg)](https://www.python.org/downloads/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
+基于 Playwright 的 HLTV CS2 深度数据分析工具，支持实时采集详细地图数据并生成中文可视化诊断报告。
+
+## 快速安装
+
+支持 [Codex](https://docs.anthropic.com/en/docs/agents-and-tools/codex)、[Claude Code](https://docs.anthropic.com/en/docs/agents-and-tools/claude-code/overview)、[Cline](https://cline.bot)、[OpenClaw](https://openclaw.ai) 等 Agent 平台：
+
 ```bash
-curl -fsSL https://raw.githubusercontent.com/ulinwang/hltv-cs2-deep-analysis/main/scripts/install_deps.sh | bash
+curl -fsSL https://raw.githubusercontent.com/ulinwang/hltv-cs2-deep-analysis/main/scripts/install.sh | bash
 ```
 
-基于 Playwright 的 HLTV CS2 深度数据分析工具，支持实时采集详细地图数据并生成中文可视化诊断报告。
+安装脚本会自动检测你的 Agent 平台，或可通过 `PLATFORM` 环境变量指定：
+
+```bash
+# 指定平台安装
+| PLATFORM=codex bash     # Codex
+| PLATFORM=claude bash    # Claude Code
+| PLATFORM=cline bash     # Cline
+| PLATFORM=openclaw bash  # OpenClaw
+```
 
 ## 功能特点
 
