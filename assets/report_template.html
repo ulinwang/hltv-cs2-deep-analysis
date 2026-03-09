@@ -1,0 +1,230 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>{{ ctx.subject_label }} 深度分析报告</title>
+  <style>
+    :root {
+      --bg: #0b1220;
+      --card: #0f172a;
+      --ink: #e2e8f0;
+      --muted: #94a3b8;
+      --line: #334155;
+      --good: #34d399;
+      --bad: #fb7185;
+      --warn: #f59e0b;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: "PingFang SC", "Noto Sans SC", "Microsoft YaHei", sans-serif;
+      background: radial-gradient(1200px 420px at 0 0, #172554, var(--bg));
+      color: var(--ink);
+      line-height: 1.5;
+    }
+    .wrap { max-width: 1300px; margin: 0 auto; padding: 28px 18px 46px; }
+    .card {
+      background: color-mix(in oklab, var(--card) 92%, black);
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      padding: 14px;
+      margin-top: 12px;
+    }
+    h1, h2, h3 { margin: 0 0 10px; line-height: 1.25; }
+    .muted { color: var(--muted); }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(5, minmax(0, 1fr));
+      gap: 10px;
+      margin-top: 14px;
+    }
+    .kpi { background: #111827; border: 1px solid var(--line); border-radius: 10px; padding: 10px; }
+    .kpi .label { font-size: 12px; color: var(--muted); }
+    .kpi .val { font-size: 22px; font-weight: 700; margin-top: 4px; }
+    table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+    th, td { border-bottom: 1px solid var(--line); padding: 8px 6px; text-align: left; font-size: 13px; vertical-align: top; }
+    th { color: var(--muted); font-weight: 600; }
+    .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 12px; }
+    ul { margin: 8px 0 0; padding-left: 18px; }
+    .good { color: var(--good); }
+    .bad { color: var(--bad); }
+    .warn { color: var(--warn); }
+    @media (max-width: 1100px) {
+      .grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .two-col { grid-template-columns: 1fr; }
+    }
+    @media (max-width: 640px) {
+      .grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <main class="wrap">
+    <h1>{{ ctx.subject_label }} 深度分析报告</h1>
+    <p class="muted">生成时间 {{ ctx.generated_at }} · 数据区间 {{ ctx.date_min }} 至 {{ ctx.date_max }}</p>
+
+    <section class="grid">
+      <article class="kpi"><div class="label">战绩</div><div class="val">{{ ctx.wins }}-{{ ctx.losses }}</div></article>
+      <article class="kpi"><div class="label">胜率</div><div class="val">{{ ctx.win_rate_pct }}%</div></article>
+      <article class="kpi"><div class="label">平均净回合差</div><div class="val">{{ ctx.avg_round_diff }}</div></article>
+      <article class="kpi"><div class="label">加时率</div><div class="val">{{ ctx.ot_rate_pct }}%</div></article>
+      <article class="kpi"><div class="label">样本图数</div><div class="val">{{ ctx.total }}</div></article>
+    </section>
+
+    <section class="card">
+      <h2>执行摘要</h2>
+      <ul>
+        {% for item in ctx.highlights %}
+        <li>{{ item }}</li>
+        {% endfor %}
+      </ul>
+    </section>
+
+    <section class="card">
+      <h2>数据质量与缺失处理</h2>
+      <ul>
+        <li>填补策略：{{ ctx.quality['缺失值填补策略'] }}</li>
+        <li>缺失总量（填补前）：{{ ctx.quality['总缺失填补前'] }}</li>
+        <li>缺失总量（填补后）：{{ ctx.quality['总缺失填补后'] }}</li>
+      </ul>
+      {% if ctx.quality['列明细'] %}
+      <table>
+        <thead><tr><th>指标列</th><th>填补前</th><th>填补后</th><th>已填补</th></tr></thead>
+        <tbody>
+          {% for row in ctx.quality['列明细'] %}
+          <tr><td>{{ row['列'] }}</td><td>{{ row['填补前'] }}</td><td>{{ row['填补后'] }}</td><td>{{ row['已填补'] }}</td></tr>
+          {% endfor %}
+        </tbody>
+      </table>
+      {% endif %}
+    </section>
+
+    <section class="two-col">
+      <article class="card">
+        <h2 class="bad">弱图诊断（为什么打得不好）</h2>
+        <table>
+          <thead><tr><th>地图</th><th>场次</th><th>战绩</th><th>胜率</th><th>净回合差</th><th>问题归因</th></tr></thead>
+          <tbody>
+            {% for row in ctx.weak_maps %}
+            <tr>
+              <td>{{ row.map }}</td><td>{{ row.maps }}</td><td>{{ row.record }}</td>
+              <td>{{ row.win_rate_pct }}%</td><td>{{ row.avg_round_diff }}</td><td>{{ row.why_bad }}</td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </article>
+      <article class="card">
+        <h2 class="good">强图诊断（为什么打得好）</h2>
+        <table>
+          <thead><tr><th>地图</th><th>场次</th><th>战绩</th><th>胜率</th><th>净回合差</th><th>优势归因</th></tr></thead>
+          <tbody>
+            {% for row in ctx.strong_maps %}
+            <tr>
+              <td>{{ row.map }}</td><td>{{ row.maps }}</td><td>{{ row.record }}</td>
+              <td>{{ row.win_rate_pct }}%</td><td>{{ row.avg_round_diff }}</td><td>{{ row.why_good }}</td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </article>
+    </section>
+
+    <section class="two-col">
+      <article class="card">
+        <h2 class="bad">对手-地图劣势组合</h2>
+        <table>
+          <thead><tr><th>组合</th><th>场次</th><th>战绩</th><th>胜率</th><th>净回合差</th><th>问题归因</th></tr></thead>
+          <tbody>
+            {% for row in ctx.weak_opp_maps %}
+            <tr>
+              <td>{{ row.title }}</td><td>{{ row.maps }}</td><td>{{ row.record }}</td>
+              <td>{{ row.win_rate_pct }}%</td><td>{{ row.avg_round_diff }}</td><td>{{ row.why_bad }}</td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </article>
+      <article class="card">
+        <h2 class="good">对手-地图优势组合</h2>
+        <table>
+          <thead><tr><th>组合</th><th>场次</th><th>战绩</th><th>胜率</th><th>净回合差</th><th>优势归因</th></tr></thead>
+          <tbody>
+            {% for row in ctx.strong_opp_maps %}
+            <tr>
+              <td>{{ row.title }}</td><td>{{ row.maps }}</td><td>{{ row.record }}</td>
+              <td>{{ row.win_rate_pct }}%</td><td>{{ row.avg_round_diff }}</td><td>{{ row.why_good }}</td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </article>
+    </section>
+
+    <section class="card">
+      <h2>可执行建议（按优先级）</h2>
+      <table>
+        <thead><tr><th>优先级</th><th>问题</th><th>执行动作</th><th>量化目标</th><th>覆盖范围</th></tr></thead>
+        <tbody>
+          {% for row in ctx.action_plan %}
+          <tr>
+            <td>{{ row.priority }}</td>
+            <td>{{ row.problem }}</td>
+            <td>{{ row.action }}</td>
+            <td>{{ row.target }}</td>
+            <td>{{ row.scope }}</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </section>
+
+    <section class="card">
+      <h2>地图池总览</h2>
+      <table>
+        <thead><tr><th>地图</th><th>场次</th><th>胜</th><th>负</th><th>胜率</th><th>净回合差</th><th>加时率</th></tr></thead>
+        <tbody>
+          {% for row in ctx.map_table %}
+          <tr>
+            <td>{{ row.map }}</td><td>{{ int(row.maps) }}</td><td>{{ int(row.wins) }}</td><td>{{ int(row.losses) }}</td>
+            <td>{{ pct(row.win_rate) }}%</td><td>{{ round(float(row.avg_round_diff), 2) }}</td><td>{{ pct(row.ot_rate) }}%</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </section>
+
+    <section class="two-col">
+      <article class="card">
+        <h2>月度趋势</h2>
+        <table>
+          <thead><tr><th>月份</th><th>场次</th><th>胜</th><th>胜率</th><th>净回合差</th></tr></thead>
+          <tbody>
+            {% for row in ctx.monthly_table %}
+            <tr>
+              <td>{{ row.month }}</td><td>{{ int(row.maps) }}</td><td>{{ int(row.wins) }}</td>
+              <td>{{ pct(row.win_rate) }}%</td><td>{{ round(float(row.avg_round_diff), 2) }}</td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </article>
+      <article class="card">
+        <h2>对手总览（高样本）</h2>
+        <table>
+          <thead><tr><th>对手</th><th>场次</th><th>胜</th><th>负</th><th>胜率</th><th>净回合差</th></tr></thead>
+          <tbody>
+            {% for row in ctx.opponent_table %}
+            <tr>
+              <td>{{ row.opponent }}</td><td>{{ int(row.maps) }}</td><td>{{ int(row.wins) }}</td><td>{{ int(row.losses) }}</td>
+              <td>{{ pct(row.win_rate) }}%</td><td>{{ round(float(row.avg_round_diff), 2) }}</td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </article>
+    </section>
+  </main>
+</body>
+</html>

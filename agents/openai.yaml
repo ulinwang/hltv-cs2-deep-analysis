@@ -1,0 +1,4 @@
+interface:
+  display_name: "HLTV Deep Analyzer"
+  short_description: "Run online HLTV deep analysis with MD+HTML reports."
+  default_prompt: "Use a live Playwright browser session to collect detailed HLTV mapstats for a team or player, then generate deep Chinese reports in Markdown and native HTML with matchup diagnostics and missing-data handling."
