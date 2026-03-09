@@ -7,6 +7,19 @@ description: Download and analyze detailed HLTV CS2 match-map data for any team 
 
 Use this skill for end-to-end analysis: collect detailed rows online, compute deep indicators, handle missing values transparently, and output Chinese dual-format reports.
 
+## Quick Start (One-liner)
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/ulinwang/hltv-cs2-deep-analysis/main/scripts/install_deps.sh | bash
+```
+
+Or clone and run locally:
+```bash
+git clone https://github.com/ulinwang/hltv-cs2-deep-analysis.git
+cd hltv-cs2-deep-analysis
+./scripts/install_deps.sh
+```
+
 ## Workflow
 
 0. Install dependencies (recommended once, includes report + Playwright runtime check).
