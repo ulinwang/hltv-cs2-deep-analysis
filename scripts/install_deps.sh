@@ -1,14 +1,33 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
+# Check Python version (require 3.10+)
+PYTHON_CMD="${PYTHON:-python3}"
+if ! command -v "$PYTHON_CMD" >/dev/null 2>&1; then
+  echo "[error] python3 not found. Please install Python 3.10 or higher."
+  exit 1
+fi
+
+PY_VERSION=$($PYTHON_CMD -c 'import sys; print(f"{sys.version_info.major}.{sys.version_info.minor}")')
+PY_MAJOR=$(echo "$PY_VERSION" | cut -d. -f1)
+PY_MINOR=$(echo "$PY_VERSION" | cut -d. -f2)
+
+if [[ "$PY_MAJOR" -lt 3 ]] || [[ "$PY_MAJOR" -eq 3 && "$PY_MINOR" -lt 10 ]]; then
+  echo "[error] Python $PY_VERSION is too old. Require Python 3.10+."
+  echo "[hint] Install Python 3.10+ or use a version manager like pyenv."
+  exit 1
+fi
+
+echo "python_version=$PY_VERSION"
+
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 REQ_FILE="$SCRIPT_DIR/../requirements.txt"
 
-if python3 -m pip install --user -r "$REQ_FILE" >/dev/null 2>&1; then
+if $PYTHON_CMD -m pip install --user -r "$REQ_FILE" >/dev/null 2>&1; then
   echo "python_deps_mode=user"
-elif python3 -m pip install --break-system-packages --user -r "$REQ_FILE"; then
+elif $PYTHON_CMD -m pip install --break-system-packages --user -r "$REQ_FILE"; then
   echo "python_deps_mode=break-system-packages+user"
-elif python3 -m pip install -r "$REQ_FILE"; then
+elif $PYTHON_CMD -m pip install -r "$REQ_FILE"; then
   echo "python_deps_mode=system"
 else
   echo "[error] failed to install python dependencies from $REQ_FILE"
